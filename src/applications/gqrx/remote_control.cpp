@@ -598,7 +598,7 @@ QString RemoteControl::cmd_set_udp_status(QStringList cmdlist)
         emit audioStreamingStopped();
     }
 
-    return QString("RPRT 1\n");
+    return QString("RPRT 0\n");
 }
 
 /* Get mode and passband */
