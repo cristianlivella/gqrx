@@ -306,6 +306,8 @@ MainWindow::MainWindow(const QString& cfgfile, bool edit_conf, QWidget *parent) 
     connect(remote, SIGNAL(gainChanged(QString, double)), uiDockInputCtl, SLOT(setGain(QString,double)));
     connect(remote, SIGNAL(dspChanged(bool)), this, SLOT(on_actionDSP_triggered(bool)));
     connect(uiDockRDS, SIGNAL(rdsPI(QString)), remote, SLOT(rdsPI(QString)));
+    connect(remote, SIGNAL(audioStreamingStarted(QString,int,bool)), this, SLOT(startAudioStream(QString,int,bool)));
+    connect(remote, SIGNAL(audioStreamingStopped()), this, SLOT(stopAudioStreaming()));
 
     rds_timer = new QTimer(this);
     connect(rds_timer, SIGNAL(timeout()), this, SLOT(rdsTimeout()));
@@ -1531,12 +1533,14 @@ void MainWindow::stopAudioPlayback()
 void MainWindow::startAudioStream(const QString& udp_host, int udp_port, bool stereo)
 {
     rx->start_udp_streaming(udp_host.toStdString(), udp_port, stereo);
+    remote->setUdpStatus(true);
 }
 
 /** Stop streaming audio over UDP. */
 void MainWindow::stopAudioStreaming()
 {
     rx->stop_udp_streaming();
+    remote->setUdpStatus(false);
 }
 
 /** Start I/Q recording. */
