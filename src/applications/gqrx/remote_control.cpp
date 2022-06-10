@@ -49,6 +49,7 @@ RemoteControl::RemoteControl(QObject *parent) :
     audio_recorder_status = false;
     receiver_running = false;
     hamlib_compatible = false;
+    rc_udp_status = false;
 
     rc_port = DEFAULT_RC_PORT;
     rc_allowed_hosts.append(DEFAULT_RC_ALLOWED_HOSTS);
@@ -254,6 +255,12 @@ void RemoteControl::startRead()
         rc_socket = 0;
         return;
     }
+    else if (cmd == "udp") {
+        answer = cmd_get_udp_status();
+    }
+    else if (cmd == "UDP") {
+        answer = cmd_set_udp_status(cmdlist);
+    }
     else
     {
         // print unknown command and respond with an error
@@ -404,6 +411,11 @@ void RemoteControl::setRDSstatus(bool enabled)
 {
     rds_status = enabled;
     rc_program_id = "0000";
+}
+
+void RemoteControl::setUdpStatus(bool status)
+{
+    rc_udp_status = status;
 }
 
 /*! \brief Convert mode string to enum (DockRxOpt::rxopt_mode_idx)
@@ -562,6 +574,28 @@ QString RemoteControl::cmd_set_freq(QStringList cmdlist)
     {
         setNewRemoteFreq((qint64)freq);
         return QString("RPRT 0\n");
+    }
+
+    return QString("RPRT 1\n");
+}
+
+/* Get frequency */
+QString RemoteControl::cmd_get_udp_status() const
+{
+    return QString("%1\n").arg(rc_udp_status);
+}
+
+QString RemoteControl::cmd_set_udp_status(QStringList cmdlist)
+{
+    bool status = cmdlist.value(1, "").compare("1") == 0;
+    const QString host = cmdlist.value(2, "");
+    int port = cmdlist.value(3, "0").toInt();
+    bool stereo = cmdlist.value(4, "").compare("1") == 0;
+
+    if (status) {
+        emit audioStreamingStarted(host, port, stereo);
+    } else {
+        emit audioStreamingStopped();
     }
 
     return QString("RPRT 1\n");

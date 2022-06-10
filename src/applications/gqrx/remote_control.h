@@ -96,6 +96,7 @@ public slots:
     void stopAudioRecorder();
     bool setGain(QString name, double gain);
     void setRDSstatus(bool enabled);
+    void setUdpStatus(bool status);
     void rdsPI(QString program_id);
 
 signals:
@@ -110,6 +111,8 @@ signals:
     void gainChanged(QString name, double value);
     void dspChanged(bool value);
     void newRDSmode(bool value);
+    void audioStreamingStarted(const QString host, int port, bool stereo);
+    void audioStreamingStopped();
 
 private slots:
     void acceptConnection();
@@ -137,6 +140,7 @@ private:
     bool        audio_recorder_status; /*!< Recording enabled */
     bool        receiver_running;  /*!< Whether the receiver is running or not */
     bool        hamlib_compatible;
+    bool        rc_udp_status;
     gain_list_t gains;             /*!< Possible and current gain settings */
 
     void        setNewRemoteFreq(qint64 freq);
@@ -146,6 +150,8 @@ private:
     /* RC commands */
     QString     cmd_get_freq() const;
     QString     cmd_set_freq(QStringList cmdlist);
+    QString     cmd_get_udp_status() const;
+    QString     cmd_set_udp_status(QStringList cmdlist);
     QString     cmd_get_mode();
     QString     cmd_set_mode(QStringList cmdlist);
     QString     cmd_get_level(QStringList cmdlist);
